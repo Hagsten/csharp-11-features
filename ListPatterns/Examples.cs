@@ -1,15 +1,16 @@
-﻿using FluentAssertions;
+﻿using System.Collections;
+using System.Numerics;
+using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
-
 namespace Demo.ListPatterns
 {
-    public class Tests
+    public class Examples
     {
         private readonly ITestOutputHelper _output;
 
-        public Tests(ITestOutputHelper output)
+        public Examples(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -17,7 +18,6 @@ namespace Demo.ListPatterns
         [Theory]
         [InlineData(new[] { 1, 2 }, "1 and 2")]
         [InlineData(new[] { 1, 2, 3, 4, 5 }, "3 in the middle")]
-        [InlineData(new int[0], "Empty")]
         [InlineData(new[] { 2, 3, 1 }, "don't care, don't care, ends with 1")]
         [InlineData(new[] { 2, 3, 4 }, "No match")]
         [InlineData(new[] { 2, 3, 4, 5, 6, 7, 8, 9, 10 }, "No match")]
@@ -25,7 +25,6 @@ namespace Demo.ListPatterns
         {
             var result = input switch
             {
-                [] => "Empty",
                 [1, 2] => "1 and 2",
                 [_, _, 3, _, _] => "3 in the middle",
                 [_, _, 1] => "don't care, don't care, ends with 1",
@@ -36,10 +35,10 @@ namespace Demo.ListPatterns
         }
 
         [Theory]
-        [InlineData(new[] { 1, 2, 3, 4, 5 }, "1 then some, then 5")]
         [InlineData(new[] { 1, 2 }, "1 and 2")]
-        [InlineData(new[] { 2, 3, 4, 5, 10 }, "2 then some, then 10")]
+        [InlineData(new[] { 1, 2, 3, 4, 5 }, "1 then some, then 5")]
         [InlineData(new[] { 2, 3, 4 }, "2 then some, then 4")]
+        [InlineData(new[] { 2, 3, 4, 5, 10 }, "2 then some, then 10")]
         public void VarPatterns(int[] input, string output)
         {
             var result = input switch
@@ -55,7 +54,6 @@ namespace Demo.ListPatterns
         [Fact]
         public void SlicePatterns()
         {
-            //range_ (6)
             var array = new[] { 1, 2, 3, 4, 5 };
 
             //Start with 1, then some others
@@ -67,17 +65,16 @@ namespace Demo.ListPatterns
             //Ends with 5
             (array is [.., 5]).Should().BeTrue();
 
-            var output = array switch
+            _output.WriteLine(array switch
             {
                 [1, .. var tail] => string.Join(", ", tail),
                 _ => ""
-            };
+            });
         }
 
         [Fact]
         public void RelationalPatterns()
         {
-            //rel_ (3)
             var array = new[] { 1, 2, 3, 4, 5 };
 
             //Last element should be less than 6

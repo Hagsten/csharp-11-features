@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,32 +17,24 @@ namespace Demo.StaticAbstractInterfaceMembers
         [Fact]
         public void DoCalc()
         {
-            var average = new Average<int>();
-
-            _output.WriteLine($"Instance average: {average.CalculateAverage(new[] { 1, 2, 3 })}");
-
-            _output.WriteLine($"static int average: {Average<int>.CalculateAverageStatic(new[] { 1, 2, 3 })}");
-            _output.WriteLine($"static double average: {Average<double>.CalculateAverageStatic(new[] { 1.3, 2.1, 3.23 })}");
-            _output.WriteLine($"static decimal average: {Average<decimal>.CalculateAverageStatic(new[] { 1.3M, 2.1M, 3.23M })}");
+            _output.WriteLine($"static int average: {Average<int>.CalculateAverage(new[] { 1, 2, 3 })}");
+            _output.WriteLine($"static double average: {Average<double>.CalculateAverage(new[] { 1.3, 2.1, 3.23 })}");
+            _output.WriteLine($"static decimal average: {Average<decimal>.CalculateAverage(new[] { 1.3M, 2.1M, 3.23M })}");
         }
     }
 
     public interface IAverage<T> where T : INumber<T>
     {
-        public T CalculateAverage(T[] inputs);
-
-        static abstract T CalculateAverageStatic(T[] inputs);
+        static abstract T CalculateAverage(T[] inputs);
     }
 
     public class Average<T> : IAverage<T> where T : INumber<T>
     {
-        public T CalculateAverage(T[] inputs) => CalculateAverageStatic(inputs);
-
-        public static T CalculateAverageStatic(T[] inputs) 
+        public static T CalculateAverage(T[] inputs)
         {
             var length = T.Zero;
             var sum = T.Zero;
-            
+
             foreach (var number in inputs)
             {
                 length += T.One;
@@ -49,6 +42,13 @@ namespace Demo.StaticAbstractInterfaceMembers
             }
 
             return sum / length;
+        }
+
+        public static T CalculateAverage2(T[] inputs)
+        {
+            var sum = inputs.Aggregate(T.AdditiveIdentity, (current, number) => current + number);
+
+            return sum / T.Parse(inputs.Length.ToString(), null);
         }
     }
 
